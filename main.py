@@ -1,14 +1,16 @@
 # main.py
 
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, Body, Query
 from pymongo import MongoClient
 from bson import ObjectId
+import random
+import string
 
-app = FastAPI(root_path="/api")  # Set the base path as "/api"
+app = FastAPI()
 
 # Connect to MongoDB Atlas M0 cluster
 try:
-    client = MongoClient("mongodb+srv://ahmad:ahmad1000@cluster0.sr2nhsw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true")
+    client = MongoClient("mongodb+srv://ahmad:ahmad1000@cluster0.sr2nhsw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
     db = client["library_db"]
     students_collection = db["students"]
     books_collection = db["books"]
@@ -22,14 +24,6 @@ async def root():
     Welcome message for the API.
     """
     return {"message": "Welcome to the Library Management System API!"}
-
-# Handle HEAD request for root endpoint
-@app.head("/")
-async def head_root():
-    """
-    Handle HEAD request for root endpoint.
-    """
-    return
 
 # Student endpoints
 
@@ -51,13 +45,33 @@ async def create_student(student: dict = Body(...)):
         raise HTTPException(status_code=500, detail="Failed to create student: " + str(e))
 
 @app.get("/students", status_code=200)
-async def list_students():
+async def list_students(country: str = Query(None, description="To apply filter of country."), 
+                        age: int = Query(None, description="Only records which have age greater than equal to the provided age should be present in the result.")):
     """
     List all students.
     """
     try:
-        students = students_collection.find({}, {"_id": 0})
-        return {"students": list(students)}
+        query = {}
+        if country:
+            query["address.country"] = country
+        if age:
+            query["age"] = {"$gte": age}
+
+        students = students_collection.find(query, {"_id": 0})
+        formatted_students = []
+
+        for student in students:
+            formatted_student = {
+                "student_id": str(student.get("_id")),  # Assuming you have an _id field for each student
+                "name": student.get("name"),
+                "age": student.get("age"),
+                "address": student.get("address"),
+                "library_card_number": student.get("library_card_number", ""),  # Add library card number if available
+                "books_borrowed": []  # Initialize an empty list for books borrowed
+            }
+            formatted_students.append(formatted_student)
+
+        return {"students": formatted_students}
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to list students: " + str(e))
 
