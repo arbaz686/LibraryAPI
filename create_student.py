@@ -1,8 +1,6 @@
 # create_student.py
 
 import requests
-import random
-import string
 
 # Define the URL for the endpoint
 url = 'http://127.0.0.1:8000/students'
