@@ -23,6 +23,14 @@ async def root():
     """
     return {"message": "Welcome to the Library Management System API!"}
 
+# Handle HEAD request for root endpoint
+@app.head("/")
+async def head_root():
+    """
+    Handle HEAD request for root endpoint.
+    """
+    return
+
 # Student endpoints
 
 @app.post("/students", status_code=201)
