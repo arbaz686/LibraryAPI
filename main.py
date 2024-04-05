@@ -25,14 +25,6 @@ async def root():
     """
     return {"message": "Welcome to the Library Management System API!"}
 
-# Generate a random book ID
-def generate_book_id():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-
-# Generate a random library card number
-def generate_library_card_number():
-    return ''.join(random.choices(string.digits, k=6))
-
 # Student endpoints
 
 @app.post("/students", status_code=201)
@@ -41,11 +33,6 @@ async def create_student(student: dict = Body(...)):
     Create a new student.
     """
     try:
-        # Generate random book ID, library card number, and books borrowed
-        student["book_id"] = generate_book_id()
-        student["library_card_number"] = generate_library_card_number()
-        student["books_borrowed"] = []
-
         # Validate input data before insertion
         if "name" not in student or "age" not in student:
             raise HTTPException(status_code=400, detail="Name and age are required fields.")
@@ -74,13 +61,28 @@ async def list_students(country: str = Query(None, description="To apply filter 
         formatted_students = []
 
         for student in students:
+            # Generate random library card number
+            library_card_number = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+
+            # Generate random books borrowed details
+            books_borrowed = []
+            for _ in range(random.randint(0, 5)):  # Assuming each student can borrow up to 5 books
+                book = random.choice(list(books_collection.find({})))  # Select a random book from the collection
+                book_borrowed = {
+                    "book_id": str(book.get("_id")),  # Assuming you have an _id field for each book
+                    "title": book.get("title"),
+                    "author": book.get("author"),
+                    "due_date": "2024-05-01"  # Example due date
+                }
+                books_borrowed.append(book_borrowed)
+
             formatted_student = {
                 "student_id": str(student.get("_id")),  # Assuming you have an _id field for each student
                 "name": student.get("name"),
                 "age": student.get("age"),
                 "address": student.get("address"),
-                "library_card_number": student.get("library_card_number", ""),  # Add library card number if available
-                "books_borrowed": student.get("books_borrowed", [])  # Add books borrowed if available
+                "library_card_number": library_card_number,
+                "books_borrowed": books_borrowed
             }
             formatted_students.append(formatted_student)
 
