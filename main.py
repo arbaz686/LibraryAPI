@@ -1,5 +1,3 @@
-# main.py
-
 from fastapi import FastAPI, HTTPException, Body, Query
 from pymongo import MongoClient
 from bson import ObjectId
