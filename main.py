@@ -1,3 +1,5 @@
+# main.py
+
 from fastapi import FastAPI, HTTPException, Body, Query
 from pymongo import MongoClient
 from bson import ObjectId
@@ -23,14 +25,6 @@ async def root():
     """
     return {"message": "Welcome to the Library Management System API!"}
 
-# Generate a random book ID
-def generate_book_id():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-
-# Generate a random library card number
-def generate_library_card_number():
-    return ''.join(random.choices(string.digits, k=6))
-
 # Student endpoints
 
 @app.post("/students", status_code=201)
@@ -39,11 +33,6 @@ async def create_student(student: dict = Body(...)):
     Create a new student.
     """
     try:
-        # Generate random book ID, library card number, and books borrowed
-        student["book_id"] = generate_book_id()
-        student["library_card_number"] = generate_library_card_number()
-        student["books_borrowed"] = []
-
         # Validate input data before insertion
         if "name" not in student or "age" not in student:
             raise HTTPException(status_code=400, detail="Name and age are required fields.")
@@ -78,10 +67,38 @@ async def list_students(country: str = Query(None, description="To apply filter 
                 "age": student.get("age"),
                 "address": student.get("address"),
                 "library_card_number": student.get("library_card_number", ""),  # Add library card number if available
-                "books_borrowed": student.get("books_borrowed", [])  # Add books borrowed if available
+                "books_borrowed": []  # Initialize an empty list for books borrowed
             }
             formatted_students.append(formatted_student)
 
         return {"students": formatted_students}
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to list students: " + str(e))
+
+# Book endpoints
+
+@app.post("/books", status_code=201)
+async def create_book(book: dict = Body(...)):
+    """
+    Create a new book.
+    """
+    try:
+        # Validate input data before insertion
+        if "title" not in book or "author" not in book:
+            raise HTTPException(status_code=400, detail="Title and author are required fields.")
+        
+        result = books_collection.insert_one(book)
+        return {"id": str(result.inserted_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to create book: " + str(e))
+
+@app.get("/books", status_code=200)
+async def list_books():
+    """
+    List all books.
+    """
+    try:
+        books = books_collection.find({}, {"_id": 0})
+        return {"books": list(books)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to list books: " + str(e))
