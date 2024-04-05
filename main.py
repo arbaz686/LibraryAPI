@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Body
 from pymongo import MongoClient
 from bson import ObjectId
 
-app = FastAPI()
+app = FastAPI(root_path="/api")  # Set the base path as "/api"
 
 # Connect to MongoDB Atlas M0 cluster
 try:
