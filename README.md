@@ -22,7 +22,7 @@ Run the following command to start the server:
 ```bash
 uvicorn main:app --reload
 ```
-This command will start the FastAPI server, and you can access the API at `http://127.0.0.1:8000`.
+This command will start the FastAPI server, and you can access the API at `https://fastapi-sr95.onrender.com/`.
 
 #### Endpoints
 
