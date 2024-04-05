@@ -25,6 +25,14 @@ async def root():
     """
     return {"message": "Welcome to the Library Management System API!"}
 
+# Generate a random book ID
+def generate_book_id():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+
+# Generate a random library card number
+def generate_library_card_number():
+    return ''.join(random.choices(string.digits, k=6))
+
 # Student endpoints
 
 @app.post("/students", status_code=201)
@@ -33,6 +41,11 @@ async def create_student(student: dict = Body(...)):
     Create a new student.
     """
     try:
+        # Generate random book ID, library card number, and books borrowed
+        student["book_id"] = generate_book_id()
+        student["library_card_number"] = generate_library_card_number()
+        student["books_borrowed"] = []
+
         # Validate input data before insertion
         if "name" not in student or "age" not in student:
             raise HTTPException(status_code=400, detail="Name and age are required fields.")
@@ -67,7 +80,7 @@ async def list_students(country: str = Query(None, description="To apply filter 
                 "age": student.get("age"),
                 "address": student.get("address"),
                 "library_card_number": student.get("library_card_number", ""),  # Add library card number if available
-                "books_borrowed": []  # Initialize an empty list for books borrowed
+                "books_borrowed": student.get("books_borrowed", [])  # Add books borrowed if available
             }
             formatted_students.append(formatted_student)
 
