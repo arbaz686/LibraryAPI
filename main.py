@@ -17,6 +17,36 @@ try:
 except Exception as e:
     print("Failed to connect to MongoDB:", e)
 
+# Add sample books to the database
+sample_books = [
+    {
+        "title": "To Kill a Mockingbird",
+        "author": "Harper Lee",
+        "isbn": "978-0061120084"
+    },
+    {
+        "title": "1984",
+        "author": "George Orwell",
+        "isbn": "978-0451524935"
+    },
+    {
+        "title": "The Great Gatsby",
+        "author": "F. Scott Fitzgerald",
+        "isbn": "978-0743273565"
+    },
+    {
+        "title": "Pride and Prejudice",
+        "author": "Jane Austen",
+        "isbn": "978-0143105428"
+    }
+]
+
+try:
+    books_collection.insert_many(sample_books)
+    print("Sample books added successfully.")
+except Exception as e:
+    print("Failed to add sample books:", e)
+
 # Define root endpoint
 @app.get("/", status_code=200)
 async def root():
