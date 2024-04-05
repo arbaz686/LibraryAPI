@@ -8,7 +8,7 @@ app = FastAPI(root_path="/api")  # Set the base path as "/api"
 
 # Connect to MongoDB Atlas M0 cluster
 try:
-    client = MongoClient("mongodb+srv://ahmad:ahmad1000@cluster0.sr2nhsw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    client = MongoClient("mongodb+srv://ahmad:ahmad1000@cluster0.sr2nhsw.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0&ssl=true")
     db = client["library_db"]
     students_collection = db["students"]
     books_collection = db["books"]
